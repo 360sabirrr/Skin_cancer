@@ -1,0 +1,111 @@
+import os
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.applications import EfficientNetB0
+from tensorflow.keras.models import Model
+from tensorflow.keras.layers import Dense, GlobalAveragePooling2D, Dropout
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+
+# -----------------------------
+# Paths
+# -----------------------------
+CSV_FILE = os.path.join("Dataset", "HAM10000_metadata.csv")
+IMAGE_DIR = os.path.join("Dataset", "images")  # folder with all images
+
+# -----------------------------
+# Check files
+# -----------------------------
+if not os.path.exists(CSV_FILE):
+    raise FileNotFoundError(f"CSV file not found: {CSV_FILE}")
+if not os.path.exists(IMAGE_DIR):
+    raise FileNotFoundError(f"Image directory not found: {IMAGE_DIR}")
+print("Found CSV and image directory ✅")
+
+# -----------------------------
+# Load metadata
+# -----------------------------
+df = pd.read_csv(CSV_FILE)
+
+# The CSV has columns: 'image_id', 'dx' (diagnosis)
+# Make sure the file names in CSV match your image files (e.g., image_id + ".jpg")
+df['image_id'] = df['image_id'].astype(str) + ".jpg"
+
+# Split data
+train_df, val_df = train_test_split(df, test_size=0.2, stratify=df['dx'], random_state=42)
+
+# -----------------------------
+# Image Data Generators
+# -----------------------------
+IMG_SIZE = 224
+BATCH_SIZE = 32
+
+train_datagen = ImageDataGenerator(
+    rescale=1./255,
+    rotation_range=20,
+    zoom_range=0.15,
+    width_shift_range=0.1,
+    height_shift_range=0.1,
+    horizontal_flip=True,
+    vertical_flip=True,
+    fill_mode='nearest'
+)
+
+val_datagen = ImageDataGenerator(rescale=1./255)
+
+train_generator = train_datagen.flow_from_dataframe(
+    dataframe=train_df,
+    directory=IMAGE_DIR,
+    x_col="image_id",
+    y_col="dx",
+    target_size=(IMG_SIZE, IMG_SIZE),
+    batch_size=BATCH_SIZE,
+    class_mode="categorical"
+)
+
+val_generator = val_datagen.flow_from_dataframe(
+    dataframe=val_df,
+    directory=IMAGE_DIR,
+    x_col="image_id",
+    y_col="dx",
+    target_size=(IMG_SIZE, IMG_SIZE),
+    batch_size=BATCH_SIZE,
+    class_mode="categorical"
+)
+
+# -----------------------------
+# Build Model
+# -----------------------------
+base_model = EfficientNetB0(weights='imagenet', include_top=False, input_shape=(IMG_SIZE, IMG_SIZE, 3))
+x = base_model.output
+x = GlobalAveragePooling2D()(x)
+x = Dropout(0.3)(x)
+output = Dense(len(train_generator.class_indices), activation='softmax')(x)
+model = Model(inputs=base_model.input, outputs=output)
+
+# Freeze base model for first training
+for layer in base_model.layers:
+    layer.trainable = False
+
+model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
+
+# -----------------------------
+# Callbacks
+# -----------------------------
+checkpoint = ModelCheckpoint("best_model.h5", monitor='val_accuracy', save_best_only=True, verbose=1)
+earlystop = EarlyStopping(monitor='val_accuracy', patience=5, restore_best_weights=True, verbose=1)
+
+# -----------------------------
+# Train
+# -----------------------------
+EPOCHS = 20
+
+history = model.fit(
+    train_generator,
+    validation_data=val_generator,
+    epochs=EPOCHS,
+    callbacks=[checkpoint, earlystop]
+)
+
+print("Training complete ✅")

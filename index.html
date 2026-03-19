@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkinCancer AI</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,0.2) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,0.2) 0, transparent 50%);
+            background-attachment: fixed;
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .file-drop-area {
+            border: 2px dashed rgba(96, 165, 250, 0.3);
+            transition: all 0.3s ease;
+        }
+        .file-drop-area:hover, .file-drop-area.dragover {
+            border-color: rgba(96, 165, 250, 0.8);
+            background: rgba(96, 165, 250, 0.05);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen flex flex-col items-center justify-center p-4 antialiased sm:p-8">
+
+    <!-- Decorative background blobs -->
+    <div class="fixed top-20 left-10 w-72 h-72 bg-blue-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-float"></div>
+    <div class="fixed bottom-20 right-10 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-[128px] opacity-20 animate-float" style="animation-delay: 2s;"></div>
+
+    <div class="w-full max-w-5xl relative z-10">
+        
+        <!-- Header -->
+        <div class="text-center mb-10">
+            <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-3">
+                <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">SkinCancer AI</span>
+            </h1>
+            <p class="text-slate-400 text-lg max-w-xl mx-auto font-medium">Advanced deep learning analysis for early detection of dermatological conditions.</p>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8">
+            <!-- Left Column: Upload -->
+            <div class="glass-panel p-8 rounded-3xl flex-1 flex flex-col h-full min-h-[400px]">
+                <h2 class="text-xl font-semibold mb-6 text-white flex items-center">
+                    <svg class="w-5 h-5 mr-3 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    Scan Image
+                </h2>
+                
+                <form id="uploadForm" class="flex-1 flex flex-col">
+                    <div class="file-drop-area flex-1 rounded-2xl flex flex-col items-center justify-center p-4 mb-6 cursor-pointer relative group" id="dropZone" onclick="document.getElementById('fileInput').click()">
+                        <input type="file" id="fileInput" name="image" accept="image/*" class="hidden" onchange="previewUpload(this)">
+                        
+                        <div id="uploadPlaceholder" class="flex flex-col items-center text-center transition-opacity duration-300">
+                            <div class="w-16 h-16 bg-blue-500/10 text-blue-400 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            </div>
+                            <p class="text-slate-300 font-medium mb-1">Click to browse or drag & drop</p>
+                            <p class="text-slate-500 text-sm">JPG, PNG up to 10MB</p>
+                        </div>
+
+                        <!-- Preview Image Container (Hidden initially) -->
+                        <div id="uploadPreview" class="hidden absolute inset-0 p-2">
+                            <img id="previewImgElement" class="w-full h-full object-cover rounded-xl shadow-lg border border-white/10" src="" alt="Preview">
+                            <div class="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-xl">
+                                <p class="text-white font-medium flex items-center">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                                    Change Image
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-semibold py-4 px-6 rounded-xl shadow-lg shadow-blue-500/25 transition-all duration-300 transform active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center">
+                        <span id="btnText">Run AI Analysis</span>
+                        <svg id="btnLoader" class="hidden animate-spin ml-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Right Column: Results -->
+            <div class="glass-panel p-8 rounded-3xl flex-[1.4] flex flex-col relative overflow-hidden hidden" id="resultsPanel">
+                
+                <h2 class="text-xl font-semibold mb-6 text-white flex items-center">
+                    <svg class="w-5 h-5 mr-3 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Analysis Results
+                </h2>
+
+                <div class="flex flex-col h-full">
+                    <!-- Main Result header -->
+                    <div class="mb-6">
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="text-3xl lg:text-4xl font-bold text-white leading-tight" id="resClass"></h3>
+                            <span class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider" id="resRisk"></span>
+                        </div>
+                        <p class="text-blue-400 font-semibold mb-3 flex items-center">
+                            AI Confidence: <span class="ml-2 bg-blue-500/20 px-2 py-0.5 rounded text-blue-300" id="resConf"></span>
+                        </p>
+                        <p class="text-slate-400 text-sm leading-relaxed" id="resDesc"></p>
+                    </div>
+
+                    <!-- Images -->
+                    <div class="grid grid-cols-2 gap-4 mb-6 mt-auto">
+                        <div class="group relative">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-end p-3 rounded-xl pointer-events-none">
+                                <span class="text-xs font-medium text-white">Original Upload</span>
+                            </div>
+                            <img id="resOrigImg" class="w-full aspect-square object-cover rounded-xl border border-white/10 shadow-lg">
+                        </div>
+                        <div class="group relative">
+                            <div class="absolute inset-0 bg-gradient-to-t from-slate-900/80 to-transparent z-10 flex items-end p-3 rounded-xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity">
+                                <span class="text-xs font-medium text-white">Grad-CAM Heatmap</span>
+                            </div>
+                            <img id="resHeatImg" class="w-full aspect-square object-cover rounded-xl border border-indigo-500/30 shadow-lg shadow-indigo-500/20">
+                            <!-- Heatmap Legend -->
+                            <div class="absolute top-2 right-2 flex space-x-1 opacity-70">
+                                <div class="w-2 h-2 rounded-full bg-red-500 shadow"></div>
+                                <div class="w-2 h-2 rounded-full bg-yellow-400 shadow"></div>
+                                <div class="w-2 h-2 rounded-full bg-blue-500 shadow"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ABCDE Warning Box -->
+                    <div id="abcdeWarning" class="hidden bg-amber-500/10 border border-amber-500/30 text-amber-200 p-4 rounded-xl text-sm relative overflow-hidden">
+                        <div class="absolute top-0 left-0 w-1 h-full bg-amber-500"></div>
+                        <p class="font-bold flex items-center mb-3 text-amber-400">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            Medical Guideline: Monitor for ABCDE Changes
+                        </p>
+                        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-y-2 gap-x-4 pl-2 text-xs text-amber-100/80">
+                            <li><strong class="text-amber-300">A</strong> - Asymmetry (uneven halves)</li>
+                            <li><strong class="text-amber-300">B</strong> - Border (ragged edges)</li>
+                            <li><strong class="text-amber-300">C</strong> - Color (uneven shades)</li>
+                            <li><strong class="text-amber-300">D</strong> - Diameter (larger than 6mm)</li>
+                            <li><strong class="text-amber-300">E</strong> - Evolving (changing over time)</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!-- Empty state for Right Column -->
+            <div class="glass-panel p-8 rounded-3xl flex-[1.4] flex flex-col items-center justify-center text-center relative border-dashed border-2 border-slate-700/50" id="emptyPanel">
+                <div class="w-20 h-20 bg-slate-800 rounded-full flex items-center justify-center mb-6 text-slate-500 border border-slate-700 shadow-inner">
+                    <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                </div>
+                <h3 class="text-xl font-medium text-slate-300 mb-2">No Analysis Yet</h3>
+                <p class="text-slate-500 max-w-sm text-sm">Upload a close-up image of a skin lesion on the left to securely run it through our diagnostic neural network.</p>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="mt-12 text-center text-slate-500">
+            <p class="text-xs font-medium tracking-wide flex items-center justify-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                For educational & research purposes only. Not a substitute for professional medical advice.
+            </p>
+        </div>
+    </div>
+
+    <!-- Logic -->
+    <script>
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+
+        // Drag & Drop visual feedback
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+        function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.add('dragover'), false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, () => dropZone.classList.remove('dragover'), false);
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            let dt = e.dataTransfer;
+            let files = dt.files;
+            if(files.length > 0) {
+                fileInput.files = files;
+                previewUpload(fileInput);
+            }
+        }, false);
+
+        // Preview upload
+        function previewUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImgElement').src = e.target.result;
+                    document.getElementById('uploadPlaceholder').classList.add('hidden');
+                    document.getElementById('uploadPreview').classList.remove('hidden');
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Form Submit API call
+        document.getElementById('uploadForm').onsubmit = async (e) => {
+            e.preventDefault();
+            if (fileInput.files.length === 0) return alert("Please select a file.");
+
+            const formData = new FormData(e.target);
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const btnLoader = document.getElementById('btnLoader');
+            
+            // set loading state
+            submitBtn.disabled = true;
+            btnText.innerText = 'Analyzing...';
+            btnLoader.classList.remove('hidden');
+
+            try {
+                const resp = await fetch('/predict', { method: 'POST', body: formData });
+                const data = await resp.json();
+                
+                if(data.error) {
+                    alert(data.error);
+                    return;
+                }
+
+                // Populate UI
+                document.getElementById('resClass').innerText = data.prediction;
+                document.getElementById('resConf').innerText = data.confidence + "%";
+                document.getElementById('resDesc').innerText = data.description;
+                
+                const riskBadge = document.getElementById('resRisk');
+                riskBadge.innerText = data.risk_level + " Risk";
+                riskBadge.style.backgroundColor = data.risk_color;
+                riskBadge.style.color = (data.risk_level === "Low") ? '#000' : '#fff';
+                riskBadge.style.boxShadow = `0 4px 14px 0 ${data.risk_color}60`; // dynamic glow
+
+                const abcdeBox = document.getElementById('abcdeWarning');
+                if (data.abcde_relevant) {
+                    abcdeBox.classList.remove('hidden');
+                } else {
+                    abcdeBox.classList.add('hidden');
+                }
+
+                document.getElementById('resOrigImg').src = URL.createObjectURL(fileInput.files[0]);
+                
+                if (data.heatmap) {
+                    document.getElementById('resHeatImg').src = "data:image/png;base64," + data.heatmap;
+                } else {
+                    document.getElementById('resHeatImg').src = "";
+                }
+                
+                // Show/Hide Panels
+                document.getElementById('emptyPanel').classList.add('hidden');
+                document.getElementById('resultsPanel').classList.remove('hidden');
+                
+            } catch(error) {
+                alert("Error calling API. Please ensure server is running.");
+            } finally {
+                // reset loading state
+                submitBtn.disabled = false;
+                btnText.innerText = 'Run AI Analysis';
+                btnLoader.classList.add('hidden');
+            }
+        };
+    </script>
+</body>
+</html>
