@@ -32,8 +32,6 @@ This is a deep learning-based Skin Cancer Detection System that uses an Efficien
    python app.py
    ```
 
-5. **Access the Web App:**
-   Open your browser and navigate to `http://127.0.0.1:5000`
 
 ## Project Structure
 - `app.py`: The main Flask application handling routing, model inference, and Grad-CAM generation.
