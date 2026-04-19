@@ -1,6 +1,6 @@
 # Skin Cancer Detection System
 
-This is a deep learning-based Skin Cancer Detection System that uses an EfficientNet model to classify skin lesions into 7 different categories. It provides a web interface (built with Flask) to upload an image and receive a predicted diagnosis, confidence score, risk assessment, and a Grad-CAM heatmap highlighting the areas of the lesion the AI focused on.
+This is a deep learning based Skin Cancer Detection System that uses an EfficientNet model to classify skin lesions into 7 different categories. It provides a web interface (built with Flask) to upload an image and receive a predicted diagnosis, confidence score, risk assessment, and a Grad-CAM heatmap highlighting the areas of the lesion the AI focused on.
 
 ## Features
 - **7-Class Classification:** Detects Actinic Keratosis, Basal Cell Carcinoma, Benign Keratosis-like Lesions, Dermatofibroma, Melanoma, Melanocytic Nevi, and Vascular Lesions.
